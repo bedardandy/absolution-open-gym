@@ -5,16 +5,17 @@ import { starterRoutines } from './starter.js'
 import { modeOf } from './history.js'
 import { emptyMeasurement } from './measurements.js'
 
-// Starting weight and weekly increment per exercise of the starter plan (kg).
-// Chest dips are body-weight only here, so they log reps at 0 added weight.
+// Starting weight and weekly increment per exercise of the studio plan (kg).
+// Bridges, pull-aparts, dead bugs, bird dogs and clams are body-weight only here, so they
+// log reps at 0 added weight.
 const PROG = {
-  '0025': [60, 1.25], '0047': [45, 1], '0426': [20, 0.5], '0334': [10, 0.25], '0241': [25, 0.75], '0251': [0, 0],
-  '2330': [50, 1.25], '0027': [50, 1], '1323': [45, 1], '0031': [30, 0.5], '0313': [12, 0.3],
-  '0043': [70, 1.5], '0085': [60, 1.25], '0739': [120, 3], '0585': [45, 1], '0586': [40, 1], '0605': [60, 1.5]
+  '1760': [12, 0.5], '1459': [16, 0.5], '0861': [25, 1.25], '1422': [0, 0], '1503': [0, 0], '0276': [0, 0],
+  '3691': [10, 0.5], '2291': [25, 1], '0314': [8, 0.5], '0405': [6, 0.25], '2487': [4, 0.25], '0597': [20, 1], '1241': [0, 0],
+  '0431': [8, 0.5], '4742': [20, 1], '2393': [10, 0.5], '5656': [8, 0.25], '4870': [0, 0], '4193': [8, 0.25], '0417': [12, 0.5]
 }
 const WEEKS = 12                       // how much history to fabricate
-const BW_FROM = 82.4, BW_TO = 78.3     // body-weight trend across those weeks
-const TARGET_W = 77
+const BW_FROM = 67.8, BW_TO = 65.4     // body-weight trend across those weeks
+const TARGET_W = 64.5
 
 // --- Effort -----------------------------------------------------------------------------
 // The demo has to show the effort stats, not just the volume ones, so the history carries
@@ -27,12 +28,12 @@ const weekTarget = wk =>
   wk === DELOAD_WEEK ? 4.5
     : wk < DELOAD_WEEK ? 2.8 - wk * 0.3
       : 2.6 - (wk - DELOAD_WEEK - 1) * 0.26
-// Leg day is trained further from failure than the upper body — deliberate, so the muscle
-// map's "hard sets" mode shows a different picture from its all-sets mode.
-const EASY = new Set(['0043', '0085', '0739', '0585', '0586'])
+// Posture and core accessories are trained further from failure than the main lifts —
+// deliberate, so the muscle map's "hard sets" mode shows a different picture from its all-sets mode.
+const EASY = new Set(['1503', '0276', '1241', '4870', '2487', '5656'])
 // One exercise nobody ever rates: partial coverage is the normal case (rating is optional and
 // off by default), and it shows the per-exercise Effort toggle correctly staying away.
-const NEVER_RATED = '0605'
+const NEVER_RATED = '0417'
 const UNRATED = 0.1                    // …plus this share of the remaining sets, at random
 // The first weeks are logged in RPE, as if they came out of another app before the profile
 // switched to RIR. A set is never rewritten (see history.js), so the stats have to average a
@@ -57,7 +58,7 @@ const at = (date, h, m) => { const d = new Date(date); d.setHours(h, m, 0, 0); r
 // straddle two points and average itself away in both.
 const monday = date => { const d = new Date(date); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); d.setHours(12, 0, 0, 0); return +d }
 
-// A full example profile: 12 weeks of Mon/Wed/Fri sessions on the starter plan, with linear
+// A full example profile: 12 weeks of Mon/Wed/Fri sessions on the studio plan, with linear
 // progression, the odd missed session, twice-weekly weigh-ins trending toward the goal, and
 // per-set effort ratings on most (not all) of it.
 export function buildDemoState() {
@@ -68,8 +69,8 @@ export function buildDemoState() {
   // and silently rewrite the demo history that mcp/test/tools.test.js pins exact values against.
   // Anything added here later wants its own generator too, not a share of this one.
   const mrnd = rng(20260724)
-  const [push, pull, legs] = starterRoutines()
-  const byWeekday = { 1: push, 3: pull, 5: legs }
+  const [foundation, align, steady] = starterRoutines()
+  const byWeekday = { 1: foundation, 3: align, 5: steady }
 
   const nowH = new Date().getHours()
   const today = new Date(); today.setHours(12, 0, 0, 0)
@@ -98,20 +99,20 @@ export function buildDemoState() {
     if (day.getDay() === 0 && weekIdx % 2 === 0) {
       const e = emptyMeasurement(iso)
       e.t = at(day, 8, 10)
-      e.neck = Math.round((39.8 - p * 0.8 + (mrnd() - 0.5) * 0.2) * 10) / 10
-      e.shoulders = Math.round((119.5 + p * 1.6 + (mrnd() - 0.5) * 0.4) * 10) / 10
-      e.chest = Math.round((103 - p * 1.4 + (mrnd() - 0.5) * 0.3) * 10) / 10
-      e.waist = Math.round((89 - p * 7.2 + (mrnd() - 0.5) * 0.5) * 10) / 10
-      e.hips = Math.round((101 - p * 3.1 + (mrnd() - 0.5) * 0.3) * 10) / 10
-      e.upperArmLeft = Math.round((35.2 + p * 0.9 + (mrnd() - 0.5) * 0.2) * 10) / 10
-      e.upperArmRight = Math.round((35.5 + p * 0.9 + (mrnd() - 0.5) * 0.2) * 10) / 10
-      e.forearmLeft = Math.round((28.6 + p * 0.4) * 10) / 10
-      e.forearmRight = Math.round((28.9 + p * 0.4) * 10) / 10
-      e.thighLeft = Math.round((58.1 + p * 0.5) * 10) / 10
-      e.thighRight = Math.round((58.5 + p * 0.5) * 10) / 10
-      e.calfLeft = Math.round((38.2 + p * 0.3) * 10) / 10
-      e.calfRight = Math.round((38.5 + p * 0.3) * 10) / 10
-      e.bodyFat = Math.round((20.4 - p * 3.8 + (mrnd() - 0.5) * 0.3) * 10) / 10
+      e.neck = Math.round((33.4 - p * 0.4 + (mrnd() - 0.5) * 0.2) * 10) / 10
+      e.shoulders = Math.round((106 + p * 0.8 + (mrnd() - 0.5) * 0.4) * 10) / 10
+      e.chest = Math.round((96 - p * 1.2 + (mrnd() - 0.5) * 0.3) * 10) / 10
+      e.waist = Math.round((82 - p * 6.4 + (mrnd() - 0.5) * 0.5) * 10) / 10
+      e.hips = Math.round((102 - p * 2.2 + (mrnd() - 0.5) * 0.3) * 10) / 10
+      e.upperArmLeft = Math.round((28.2 + p * 0.4 + (mrnd() - 0.5) * 0.2) * 10) / 10
+      e.upperArmRight = Math.round((28.5 + p * 0.4 + (mrnd() - 0.5) * 0.2) * 10) / 10
+      e.forearmLeft = Math.round((23.1 + p * 0.2) * 10) / 10
+      e.forearmRight = Math.round((23.4 + p * 0.2) * 10) / 10
+      e.thighLeft = Math.round((56 + p * 0.6) * 10) / 10
+      e.thighRight = Math.round((56.4 + p * 0.6) * 10) / 10
+      e.calfLeft = Math.round((35.4 + p * 0.2) * 10) / 10
+      e.calfRight = Math.round((35.7 + p * 0.2) * 10) / 10
+      e.bodyFat = Math.round((30.5 - p * 3.2 + (mrnd() - 0.5) * 0.3) * 10) / 10
       measurements.push(e)
     }
 
@@ -173,14 +174,18 @@ export function buildDemoState() {
   const dayPlan = {}
   const tIso = isoOf(today)
   if (!byWeekday[today.getDay()] && !workouts.some(w => w.d === tIso)) {
-    const order = [push, pull, legs]
-    const lastName = workouts.length ? workouts[workouts.length - 1].name : legs.name
+    const order = [foundation, align, steady]
+    const lastName = workouts.length ? workouts[workouts.length - 1].name : steady.name
     dayPlan[tIso] = order[(order.findIndex(r => r.name === lastName) + 1) % order.length].id
   }
 
   return {
-    routines: [push, pull, legs],
-    week: { 1: push.id, 3: pull.id, 5: legs.id },
+    routines: [foundation, align, steady],
+    week: { 1: foundation.id, 3: align.id, 5: steady.id },
+    // The example client, and the studio's own colours. A fresh self-hosted profile still
+    // starts from the store defaults; only the seeded demo carries these.
+    body: 'female',
+    accent: 'harbor',
     dayPlan,
     workouts, bodyweight, measurements, exWeights,
     targetW: TARGET_W,

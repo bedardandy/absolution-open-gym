@@ -1672,6 +1672,7 @@ export default {
   'QR code': 'QR Code',
   'Delete weigh-in': '刪除體重紀錄',
   'Green': '綠色',
+  'Harbor': '港灣',
   'Blue': '藍色',
   'Orange': '橘色',
   'Purple': '紫色',

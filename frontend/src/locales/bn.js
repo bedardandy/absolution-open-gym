@@ -1738,6 +1738,7 @@ export default {
   'QR code': 'QR কোড',
   'Delete weigh-in': 'ওজন মাপা মুছুন',
   'Green': 'সবুজ',
+  'Harbor': 'পোতাশ্রয়',
   'Blue': 'নীল',
   'Orange': 'কমলা',
   'Purple': 'বেগুনি',

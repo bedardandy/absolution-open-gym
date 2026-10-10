@@ -231,8 +231,10 @@ describe('on the demo profile', () => {
       expect(rows.map(r => r.dataset.roleId)).toEqual(tpl.roles.map(r => r.id))
       scored[tpl.id] = rows.filter(r => r.dataset.status !== 'no-data').map(r => r.dataset.roleId)
     }
-    expect(scored.thibaudeauPowerlifting).toEqual(expect.arrayContaining(['squat', 'bench']))
-    expect(scored.atg).toEqual(expect.arrayContaining(['romanianDeadlift', 'atgDips']))
+    // The studio history is goblet squats, hinges, rows, step-ups and presses — not the
+    // barbell squat, bench and dip the powerlifting templates are built on.
+    expect(scored.thibaudeauPowerlifting).toEqual([])
+    expect(scored.atg).toEqual(expect.arrayContaining(['stepUp', 'inclineDbPress', 'dbShoulderPress']))
     expect(host.textContent).not.toContain('NaN')
     expect(host.textContent).not.toContain('undefined')
   })

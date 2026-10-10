@@ -1647,6 +1647,7 @@ export default {
   'QR code': 'QR-код',
   'Delete weigh-in': 'Удалить взвешивание',
   'Green': 'Зелёный',
+  'Harbor': 'Гавань',
   'Blue': 'Синий',
   'Orange': 'Оранжевый',
   'Purple': 'Фиолетовый',

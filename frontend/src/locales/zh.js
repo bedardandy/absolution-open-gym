@@ -1691,6 +1691,7 @@ export default {
   'QR code': '二维码',
   'Delete weigh-in': '删除称重记录',
   'Green': '绿色',
+  'Harbor': '港湾',
   'Blue': '蓝色',
   'Orange': '橙色',
   'Purple': '紫色',

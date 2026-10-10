@@ -157,7 +157,7 @@ export function _seedStateForTests(state) {
 function defaultsShape() {
   return {
     unit: 'kg', restSec: 90, sound: true, lang: 'en',
-    theme: 'dark', accent: 'lime', body: 'male', targetW: null,
+    theme: 'dark', accent: 'harbor', body: 'male', targetW: null,
     bodyweight: [], routines: [], week: {}, dayPlan: {},
     exWeights: {}, workouts: [], customEx: [], gifSize: 'full',
     reminder: { on: false, time: '08:00', tz: null }

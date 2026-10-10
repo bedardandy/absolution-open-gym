@@ -1691,6 +1691,7 @@ export default {
   'QR code': 'QR-kód',
   'Delete weigh-in': 'Mérés törlése',
   'Green': 'Zöld',
+  'Harbor': 'Kikötő',
   'Blue': 'Kék',
   'Orange': 'Narancs',
   'Purple': 'Lila',

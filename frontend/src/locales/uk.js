@@ -1678,6 +1678,7 @@ export default {
   'QR code': 'QR-код',
   'Delete weigh-in': 'Видалити зважування',
   'Green': 'Зелений',
+  'Harbor': 'Гавань',
   'Blue': 'Синій',
   'Orange': 'Помаранчевий',
   'Purple': 'Фіолетовий',

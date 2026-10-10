@@ -9,6 +9,16 @@ import { uid } from './format.js'
 import { EXIDX } from './exercises.js'
 import { eqAvailable, ALL_EQUIPMENT } from './equipment.js'
 
+// The studio plan the demo seeds, and the first plan in the chooser. Full-body days built
+// around supported strength, posture and balance: goblet and split squats, hinges, rows,
+// step-ups, hip work and a little core. Loads stay moderate. Names stay canonical English,
+// like every other starter routine.
+const STUDIO = [
+  ['foundation', 'Foundation', 'figureStrength', [['1760', 3, 8], ['1459', 3, 8], ['0861', 3, 8], ['1422', 3, 12], ['1503', 3, 15], ['0276', 3, 10]]],
+  ['align', 'Align', 'stretch', [['3691', 3, 8], ['2291', 3, 10], ['0314', 3, 8], ['0405', 3, 8], ['2487', 3, 12], ['0597', 3, 12], ['1241', 2, 10]]],
+  ['steady', 'Steady', 'legs', [['0431', 3, 8], ['4742', 3, 10], ['2393', 3, 10], ['5656', 3, 12], ['4870', 3, 12], ['4193', 2, 10], ['0417', 3, 12]]]
+]
+
 const PPL = [
   ['push', 'Push Day', 'barbell', [['0025', 4, 8], ['0047', 3, 10], ['0426', 3, 10], ['0334', 3, 12], ['0241', 3, 12], ['0251', 3, 10]]],
   ['pull', 'Pull Day', 'pullup', [['2330', 4, 10], ['0027', 4, 8], ['1323', 3, 10], ['0031', 3, 10], ['0313', 3, 12]]],
@@ -37,6 +47,7 @@ const FIVE_BY_FIVE = [
 // [weekday, routineKey] — weekday is a DAYN index, so 1 is Monday. Fixed weeks only: every
 // plan repeats the same seven days, which is all the weekly plan model can represent.
 const PLANS = {
+  studio: { routines: STUDIO, schedule: [[1, 'foundation'], [3, 'align'], [5, 'steady']] },
   ppl: { routines: PPL, schedule: [[1, 'push'], [3, 'pull'], [5, 'legs']] },
   'upper-lower': { routines: UPPER_LOWER, schedule: [[1, 'upper-a'], [2, 'lower-a'], [4, 'upper-b'], [5, 'lower-b']] },
   'full-body': { routines: FULL_BODY, schedule: [[1, 'fb-a'], [3, 'fb-b'], [5, 'fb-c']] },
@@ -46,9 +57,9 @@ const PLANS = {
 const build = routines =>
   routines.map(([, name, emoji, list]) => ({ id: uid(), name, emoji, ex: list.map(([id, sets, reps]) => ({ id, sets, reps, weight: 0 })) }))
 
-// Fresh routine objects (new ids) — [push, pull, legs]. The demo build seeds a history on
-// top of exactly these three, so this entry point keeps its shape.
-export const starterRoutines = () => build(PPL)
+// Fresh routine objects (new ids) — [foundation, align, steady]. The demo build seeds a
+// history on top of exactly these three, so this entry point keeps its shape.
+export const starterRoutines = () => build(STUDIO)
 
 // [{ id, days }] for the chooser. The day count is read off the schedule rather than stored
 // beside it, so the two can never disagree.

@@ -18,22 +18,22 @@
 
 /* ---------------------------------------------------------------- tokens -- */
 :root {
-  /* surfaces — dark is the default */
-  --bg:        #000000;
-  --bg-el:     #0e0e10;   /* elevated backdrop (sheets, bars) */
-  --surface:   #1c1c1e;   /* card / grouped-list fill */
-  --surface-2: #2c2c2e;   /* pressed + nested fill */
-  --surface-3: #3a3a3c;   /* controls (segmented track, switch off) */
+  /* surfaces — harbor night is the default (Absolution, Portsmouth) */
+  --bg:        #12100e;
+  --bg-el:     #1a1714;   /* elevated backdrop (sheets, bars) */
+  --surface:   #24201c;   /* card / grouped-list fill */
+  --surface-2: #312c27;   /* pressed + nested fill */
+  --surface-3: #3e3832;   /* controls (segmented track, switch off) */
 
   /* text */
-  --label:     #ffffff;
-  --label-2:   rgba(235,235,245,.60);
-  --label-3:   rgba(235,235,245,.32);
-  --label-4:   rgba(235,235,245,.18);
+  --label:     #f6f1ea;
+  --label-2:   rgba(235,228,214,.62);
+  --label-3:   rgba(235,228,214,.34);
+  --label-4:   rgba(235,228,214,.18);
 
   /* lines */
-  --sep:       rgba(84,84,88,.60);
-  --sep-op:    rgba(84,84,88,.34);   /* for edges sitting over blur */
+  --sep:       rgba(196,168,130,.38);
+  --sep-op:    rgba(196,168,130,.24);   /* for edges sitting over blur */
   --hair:      .5px;
 
   /* system palette (iOS dark values) */
@@ -70,19 +70,19 @@
 }
 
 :root[data-theme="light"] {
-  --bg:        #f2f2f7;
-  --bg-el:     #f7f7fa;
-  --surface:   #ffffff;
-  --surface-2: #ececef;
-  --surface-3: #e3e3e8;
+  --bg:        #f3eee6;
+  --bg-el:     #f7f3ec;
+  --surface:   #fffdf9;
+  --surface-2: #ebe4d8;
+  --surface-3: #e0d6c8;
 
-  --label:     #000000;
-  --label-2:   rgba(60,60,67,.60);
-  --label-3:   rgba(60,60,67,.30);
-  --label-4:   rgba(60,60,67,.16);
+  --label:     #1c1712;
+  --label-2:   rgba(70,52,36,.62);
+  --label-3:   rgba(70,52,36,.34);
+  --label-4:   rgba(70,52,36,.16);
 
-  --sep:       rgba(60,60,67,.29);
-  --sep-op:    rgba(60,60,67,.20);
+  --sep:       rgba(70,52,36,.22);
+  --sep-op:    rgba(70,52,36,.16);
 
   --blue:#007aff; --green:#34c759; --red:#ff3b30; --orange:#ff9500;
   --yellow:#ffcc00; --teal:#30b0c7; --indigo:#5856d6; --pink:#ff2d55;
@@ -92,6 +92,7 @@
 }
 
 /* accents — Apple's system colours, so a recolour never looks off-system */
+:root[data-accent="harbor"] { --acc:#e0b56a; --acc-2:#b8893e; --on-acc:#1c140c }
 :root[data-accent="lime"]  { --acc:var(--green);  --acc-2:#248a3d; --on-acc:#000 }
 :root[data-accent="sky"]   { --acc:var(--blue);   --acc-2:#0060df; --on-acc:#fff }
 :root[data-accent="orange"]{ --acc:var(--orange); --acc-2:#c76b00; --on-acc:#000 }
@@ -106,6 +107,7 @@
    DEFAULT accent, so every primary button in light mode was failing. Black scores
    9.46 / 8.16 there. Blue, purple, pink and red keep white (3.5–4.1:1), which both
    passes and matches the platform convention. */
+:root[data-theme="light"][data-accent="harbor"] { --acc:#8a4b28; --acc-2:#6b391c; --on-acc:#fff }
 :root[data-theme="light"][data-accent="lime"],
 :root[data-theme="light"][data-accent="teal"]  { --on-acc:#000 }
 :root[data-theme="light"][data-accent="sky"],
