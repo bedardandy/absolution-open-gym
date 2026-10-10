@@ -116,8 +116,8 @@ describe('readable on the theme', () => {
     for (const bg of THEMES.light.bgs) expect(contrast(pale, bg)).toBeGreaterThanOrEqual(THEMES.light.min)
     expect(readableIn('#fff8e1', 'dark')).toBe('#fff8e1')
     // the extremes still end somewhere readable
-    expect(contrast(readableIn('#000000', 'dark'), '#1c1c1e')).toBeGreaterThanOrEqual(3)
-    expect(contrast(readableIn('#ffffff', 'light'), '#f2f2f7')).toBeGreaterThanOrEqual(4.5)
+    expect(contrast(readableIn('#000000', 'dark'), '#24201c')).toBeGreaterThanOrEqual(3)
+    expect(contrast(readableIn('#ffffff', 'light'), '#f3eee6')).toBeGreaterThanOrEqual(4.5)
   })
   it('a colour with a hue is never adjusted for both themes', () => {
     for (let i = 0; i < 400; i++) {

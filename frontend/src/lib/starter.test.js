@@ -6,6 +6,11 @@ import { buildStarterPlan, starterPlanDays, starterPlanOptions, starterRoutines 
 // The approved prescription, written out again rather than imported: a test that reads the
 // same table as the code would pass no matter what that table said. [weekday, name, sets].
 const APPROVED = {
+  studio: [
+    [1, 'Foundation', [['1760', 3, 8], ['1459', 3, 8], ['0861', 3, 8], ['1422', 3, 12], ['1503', 3, 15], ['0276', 3, 10]]],
+    [3, 'Align', [['3691', 3, 8], ['2291', 3, 10], ['0314', 3, 8], ['0405', 3, 8], ['2487', 3, 12], ['0597', 3, 12], ['1241', 2, 10]]],
+    [5, 'Steady', [['0431', 3, 8], ['4742', 3, 10], ['2393', 3, 10], ['5656', 3, 12], ['4870', 3, 12], ['4193', 2, 10], ['0417', 3, 12]]],
+  ],
   ppl: [
     [1, 'Push Day', [['0025', 4, 8], ['0047', 3, 10], ['0426', 3, 10], ['0334', 3, 12], ['0241', 3, 12], ['0251', 3, 10]]],
     [3, 'Pull Day', [['2330', 4, 10], ['0027', 4, 8], ['1323', 3, 10], ['0031', 3, 10], ['0313', 3, 12]]],
@@ -32,8 +37,9 @@ const APPROVED = {
 const shape = r => r.ex.map(e => [e.id, e.sets, e.reps])
 
 describe('starter plan catalog', () => {
-  it('offers exactly the four plans, with the day count read off the schedule', () => {
+  it('offers exactly the five plans, with the day count read off the schedule', () => {
     expect(starterPlanOptions()).toEqual([
+      { id: 'studio', days: 3 },
       { id: 'ppl', days: 3 }, { id: 'upper-lower', days: 4 },
       { id: 'full-body', days: 3 }, { id: '5x5', days: 3 },
     ])
@@ -90,11 +96,11 @@ describe.each(Object.keys(APPROVED))('%s', planId => {
 })
 
 describe('starterRoutines (the demo build entry point)', () => {
-  it('still returns push, pull and legs unchanged', () => {
+  it('returns the studio plan the demo seeds', () => {
     const routines = starterRoutines()
-    expect(routines.map(r => r.name)).toEqual(['Push Day', 'Pull Day', 'Leg Day'])
-    routines.forEach((r, i) => expect(shape(r)).toEqual(APPROVED.ppl[i][2]))
-    expect(routines.map(r => r.emoji)).toEqual(['barbell', 'pullup', 'legs'])
+    expect(routines.map(r => r.name)).toEqual(['Foundation', 'Align', 'Steady'])
+    routines.forEach((r, i) => expect(shape(r)).toEqual(APPROVED.studio[i][2]))
+    expect(routines.map(r => r.emoji)).toEqual(['figureStrength', 'stretch', 'legs'])
   })
 
   it('mints fresh ids on every invocation', () => {

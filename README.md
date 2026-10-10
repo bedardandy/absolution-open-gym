@@ -2,6 +2,8 @@
 
 <img src="assets/banner.png" alt="openGym" width="720">
 
+**Absolution of Portsmouth, NH** — a studio build of openGym. Harbor colours, and a starter plan of steady strength, posture and balance.
+
 **A self-hosted gym and body-weight tracker you actually own.**
 
 Plan your week, run guided workouts, log every set and your body weight,<br>

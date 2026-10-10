@@ -1736,6 +1736,7 @@ export default {
   'QR code': 'رمز QR',
   'Delete weigh-in': 'حذف الوزن المسجّل',
   'Green': 'أخضر',
+  'Harbor': 'ميناء',
   'Blue': 'أزرق',
   'Orange': 'برتقالي',
   'Purple': 'بنفسجي',

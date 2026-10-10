@@ -1026,6 +1026,7 @@ export const PT_BR_OVERRIDES = {
   'QR code': 'QR code',
   'Delete weigh-in': 'Excluir pesagem',
   'Green': 'Verde',
+  'Harbor': 'Porto',
   'Blue': 'Azul',
   'Orange': 'Laranja',
   'Purple': 'Roxo',

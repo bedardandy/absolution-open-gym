@@ -1691,6 +1691,7 @@ export default {
   'QR code': 'Codice QR',
   'Delete weigh-in': 'Elimina pesata',
   'Green': 'Verde',
+  'Harbor': 'Porto',
   'Blue': 'Blu',
   'Orange': 'Arancione',
   'Purple': 'Viola',

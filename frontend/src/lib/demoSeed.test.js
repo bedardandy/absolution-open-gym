@@ -41,9 +41,9 @@ describe('demo seed — effort', () => {
     const rated = {}
     eachSet((s, w, e) => { rated[e.id] = (rated[e.id] || 0) + (rirOf(s) != null ? 1 : 0) })
     const ids = Object.keys(rated)
-    expect(ids.filter(id => rated[id] === 0)).toEqual(['0605'])
+    expect(ids.filter(id => rated[id] === 0)).toEqual(['0417'])
     // …while the rest carry enough rated sessions for a curve of their own (needs 3).
-    ids.filter(id => id !== '0605').forEach(id => {
+    ids.filter(id => id !== '0417').forEach(id => {
       const sessions = S.workouts.filter(w => {
         const en = w.entries.find(e => e.id === id)
         return en && avgRir(en.sets.filter(s => s.done)) != null
@@ -115,10 +115,10 @@ describe('demo seed — effort', () => {
 // on the frontend side of the boundary, where the seed actually lives.
 describe('demo seed — the training stream is a fixture', () => {
   const TODAY = '2026-07-27'                 // Monday, matching the mcp suite's pinned clock
-  // Not copied off a run: 18412.5 is the sum of w×r over the twenty completed sets of the newest
-  // session, and 78.3 is BW_TO, the end of the body-weight trend. Same two values mcp asserts.
-  const NEWEST = { d: '2026-07-24', name: 'Leg Day', vol: 18412.5 }
-  const LATEST_BW = { d: TODAY, w: 78.3 }
+  // Not copied off a run: 2885 is the sum of w×r over the twenty completed sets of the newest
+  // session, and 65.4 is BW_TO, the end of the body-weight trend. Same two values mcp asserts.
+  const NEWEST = { d: '2026-07-24', name: 'Steady', vol: 2885 }
+  const LATEST_BW = { d: TODAY, w: 65.4 }
   let D = null
 
   beforeAll(() => {

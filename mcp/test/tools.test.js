@@ -11,15 +11,15 @@ import { bestSetOf } from '../../frontend/src/lib/onerm.js'
 
 // Re-stated here so the assertions stand alone without reaching into lib internals to learn
 // the demo state's exact values.
-const FAKE_TODAY_ISO = '2026-07-27'                         // Monday — Push Day is scheduled
-const GOAL_WEIGHT = 77
-// Re-pinned against the v1.2.4 seed, which moved when the demo learned about bodyweight work
-// and effort. Hand-checked rather than copied off a failing run: 18412.5 is the sum of w×r
-// over the twenty completed sets, and 1.3 is 78.3 − 77.
-const NEWEST_WORKOUT = { date: '2026-07-24', name: 'Leg Day', volume: 18412.5, bw: 78.4, sets_done: 20, sets_total: 20, duration: '1h 11m' }
-const LATEST_BW = { date: '2026-07-27', weight: 78.3, delta: 1.3 }
-const LEG_PRESS_ID = '0739'                                 // sled 45° leg press in the demo data
-const LEG_PRESS_BEST = { w: 152.5, r: 12, epley: 213.5, brzycki: 219.6 }
+const FAKE_TODAY_ISO = '2026-07-27'                         // Monday — Foundation is scheduled
+const GOAL_WEIGHT = 64.5
+// Re-pinned when the demo moved onto the studio plan. Hand-checked rather than copied off a
+// failing run: 2885 is the sum of w×r over the twenty completed sets, and 0.9 is 65.4 − 64.5.
+const NEWEST_WORKOUT = { date: '2026-07-24', name: 'Steady', volume: 2885, bw: 65.9, sets_done: 20, sets_total: 20, duration: '1h 1m' }
+const LATEST_BW = { date: '2026-07-27', weight: 65.4, delta: 0.9 }
+const ROW_ID = '0861'                                       // cable seated row in the demo data
+// 38.75×8. Epley: 38.75×(1+8/30) = 49.0833… → 49.1. Brzycki: 38.75×36/(37−8) = 48.1034… → 48.1.
+const ROW_BEST = { w: 38.75, r: 8, epley: 49.1, brzycki: 48.1 }
 
 const byName = Object.fromEntries(TOOLS.map(t => [t.name, t.handler]))
 
@@ -62,7 +62,7 @@ describe('list_routines', () => {
     const r = call('list_routines')
     expect(r.unit).toBe('kg')
     expect(r.routines.length).toBe(3)
-    expect(r.routines.map(x => x.name).sort()).toEqual(['Leg Day', 'Pull Day', 'Push Day'])
+    expect(r.routines.map(x => x.name).sort()).toEqual(['Align', 'Foundation', 'Steady'])
     r.routines.forEach(rn => {
       expect(typeof rn.id).toBe('string')
       expect(rn.exercise_count).toBeGreaterThan(0)
@@ -94,10 +94,10 @@ describe('list_routines', () => {
 /* ---------- get_routine ---------- */
 
 describe('get_routine', () => {
-  test('returns the full exercise list for Push Day with per-exercise summaries', () => {
-    const push = call('list_routines').routines.find(x => x.name === 'Push Day')
+  test('returns the full exercise list for Foundation with per-exercise summaries', () => {
+    const push = call('list_routines').routines.find(x => x.name === 'Foundation')
     const r = call('get_routine', { routine_id: push.id })
-    expect(r.name).toBe('Push Day')
+    expect(r.name).toBe('Foundation')
     expect(r.exercises.length).toBe(push.exercise_count)
     expect(r.policy_name).toBeTruthy()
     r.exercises.forEach(e => {
@@ -212,7 +212,7 @@ describe('get_routine', () => {
     // Append synthetic entries the starter plan doesn't ship: a timed plank (sec, no w) and a
     // cardio treadmill block (min + speed). These exercise ids don't exist in EXDB, so exOr
     // returns a placeholder named "Unknown exercise" — that's fine, we test the cfg fields.
-    const push = S.routines.find(r => r.name === 'Push Day')
+    const push = S.routines.find(r => r.name === 'Foundation')
     push.ex.push({ id: 'synth-plank', sets: 3, sec: 60, weight: 0, mode: 'time' })
     push.ex.push({ id: 'synth-treadmill', sets: 1, min: 20, speed: 8, mode: 'cardio' })
     const r = call('get_routine', { routine_id: push.id })
@@ -238,20 +238,20 @@ describe('get_week_plan', () => {
       .toEqual(['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'])
   })
 
-  test('today is the pinned Monday, and Push Day is scheduled', () => {
+  test('today is the pinned Monday, and Foundation is scheduled', () => {
     const r = call('get_week_plan')
     expect(r.today).toBe(FAKE_TODAY_ISO)
-    const push = S.routines.find(x => x.name === 'Push Day')
+    const push = S.routines.find(x => x.name === 'Foundation')
     expect(r.today_routine_id).toBe(push.id)
-    expect(r.today_routine_name).toBe('Push Day')
+    expect(r.today_routine_name).toBe('Foundation')
   })
 
-  test('week[1]/[3]/[5] map to Push/Pull/Leg, other weekdays are rest', () => {
+  test('week[1]/[3]/[5] map to Foundation/Align/Steady, other weekdays are rest', () => {
     const r = call('get_week_plan')
     const byWd = Object.fromEntries(r.weekdays.map(d => [d.weekday, d]))
-    expect(byWd[1].routine_name).toBe('Push Day')
-    expect(byWd[3].routine_name).toBe('Pull Day')
-    expect(byWd[5].routine_name).toBe('Leg Day')
+    expect(byWd[1].routine_name).toBe('Foundation')
+    expect(byWd[3].routine_name).toBe('Align')
+    expect(byWd[5].routine_name).toBe('Steady')
     ;[0, 2, 4, 6].forEach(wd => {
       expect(byWd[wd].routine_id).toBeNull()
       expect(byWd[wd].routine_name).toBeNull()
@@ -272,11 +272,11 @@ describe('get_week_plan', () => {
   })
 
   test('a routine-id override on today replaces the weekday default', () => {
-    const legs = S.routines.find(r => r.name === 'Leg Day')
+    const legs = S.routines.find(r => r.name === 'Steady')
     S.dayPlan[FAKE_TODAY_ISO] = legs.id
     const r = call('get_week_plan')
     expect(r.today_routine_id).toBe(legs.id)
-    expect(r.today_routine_name).toBe('Leg Day')
+    expect(r.today_routine_name).toBe('Steady')
   })
 
   test('empty week + no override → today has no routine (a quiet Sunday)', () => {
@@ -297,7 +297,7 @@ describe('get_week_plan — coach week and pins', () => {
   const rid = name => S.routines.find(x => x.name === name).id
   const SINCE = () => Date.parse('2026-07-27T08:00:00')
   const coachWeek = (over = {}) => {
-    S.queue = { ids: [rid('Push Day'), rid('Pull Day'), rid('Leg Day')], since: SINCE(), startsOn: FAKE_TODAY_ISO, label: 'W1', ...over }
+    S.queue = { ids: [rid('Foundation'), rid('Align'), rid('Steady')], since: SINCE(), startsOn: FAKE_TODAY_ISO, label: 'W1', ...over }
     S.week = {}
   }
   const logged = (name, d = FAKE_TODAY_ISO) => ({ id: 'w-' + name, d, start: SINCE() + 3600000, end: SINCE() + 7200000, routineIds: [rid(name)], routineId: rid(name), name, entries: [] })
@@ -306,24 +306,24 @@ describe('get_week_plan — coach week and pins', () => {
     const r = call('get_week_plan')
     expect(r.coach_week).toBeNull()
     expect(r.days.map(d => d.date)).toEqual(['2026-07-27', '2026-07-28', '2026-07-29', '2026-07-30', '2026-07-31', '2026-08-01', '2026-08-02'])
-    expect(r.days[0]).toMatchObject({ weekday: 1, weekday_name: 'Monday', routine_names: ['Push Day'], planned_by: 'weekday' })
+    expect(r.days[0]).toMatchObject({ weekday: 1, weekday_name: 'Monday', routine_names: ['Foundation'], planned_by: 'weekday' })
     expect(r.days[1]).toMatchObject({ routine_ids: [], routine_names: [], planned_by: 'rest' })
-    expect(r.days[2]).toMatchObject({ routine_names: ['Pull Day'], planned_by: 'weekday' })
-    expect(r.today_routine_ids).toEqual([rid('Push Day')])
-    expect(r.today_routine_names).toEqual(['Push Day'])
+    expect(r.days[2]).toMatchObject({ routine_names: ['Align'], planned_by: 'weekday' })
+    expect(r.today_routine_ids).toEqual([rid('Foundation')])
+    expect(r.today_routine_names).toEqual(['Foundation'])
   })
 
   test('a weekday holding several routines (combine routines) lists them all; the singular fields keep the first', () => {
-    S.week[2] = [rid('Pull Day'), rid('Leg Day')]
+    S.week[2] = [rid('Align'), rid('Steady')]
     const r = call('get_week_plan')
     const tue = r.weekdays.find(d => d.weekday === 2)
-    expect(tue.routine_ids).toEqual([rid('Pull Day'), rid('Leg Day')])
-    expect(tue.routine_names).toEqual(['Pull Day', 'Leg Day'])
-    expect(tue.routine_id).toBe(rid('Pull Day'))
-    expect(tue.routine_name).toBe('Pull Day')
-    expect(r.days[1]).toMatchObject({ routine_names: ['Pull Day', 'Leg Day'], planned_by: 'weekday' })
+    expect(tue.routine_ids).toEqual([rid('Align'), rid('Steady')])
+    expect(tue.routine_names).toEqual(['Align', 'Steady'])
+    expect(tue.routine_id).toBe(rid('Align'))
+    expect(tue.routine_name).toBe('Align')
+    expect(r.days[1]).toMatchObject({ routine_names: ['Align', 'Steady'], planned_by: 'weekday' })
     // …and a legacy single id still reads as a one-item list.
-    expect(r.weekdays.find(d => d.weekday === 1).routine_ids).toEqual([rid('Push Day')])
+    expect(r.weekdays.find(d => d.weekday === 1).routine_ids).toEqual([rid('Foundation')])
   })
 
   test('a coach week: today is the first undone session, the other days carry nothing, and the week is described', () => {
@@ -332,8 +332,8 @@ describe('get_week_plan — coach week and pins', () => {
     expect(r.coach_week).toMatchObject({ label: 'W1', starts_on: FAKE_TODAY_ISO, waiting: false, complete: false })
     expect(r.coach_week.sessions.map(x => x.state)).toEqual(['next', 'later', 'later'])
     expect(r.coach_week.sessions.map(x => x.pinned_to)).toEqual([null, null, null])
-    expect(r.today_routine_name).toBe('Push Day')
-    expect(r.days[0]).toMatchObject({ routine_names: ['Push Day'], planned_by: 'coach' })
+    expect(r.today_routine_name).toBe('Foundation')
+    expect(r.days[0]).toMatchObject({ routine_names: ['Foundation'], planned_by: 'coach' })
     r.days.slice(1).forEach(d => expect(d).toMatchObject({ routine_ids: [], planned_by: 'rest' }))
     // The weekday table is the user's own plan only — empty here.
     r.weekdays.forEach(d => expect(d.routine_ids).toEqual([]))
@@ -341,22 +341,22 @@ describe('get_week_plan — coach week and pins', () => {
 
   test('a done session moves today to the next one; the rest of the week still floats', () => {
     coachWeek()
-    S.workouts.push(logged('Push Day'))
+    S.workouts.push(logged('Foundation'))
     const r = call('get_week_plan')
     expect(r.coach_week.sessions.map(x => x.state)).toEqual(['done', 'next', 'later'])
-    expect(r.today_routine_name).toBe('Pull Day')
+    expect(r.today_routine_name).toBe('Align')
     expect(r.days[0].planned_by).toBe('coach')
   })
 
   test('a session pinned to a date sits there, is skipped today, and the pin is fulfilled once done', () => {
     coachWeek()
-    S.dayPlan['2026-07-29'] = rid('Leg Day')
+    S.dayPlan['2026-07-29'] = rid('Steady')
     let r = call('get_week_plan')
     expect(r.coach_week.sessions[2]).toMatchObject({ state: 'pinned', pinned_to: '2026-07-29' })
-    expect(r.days[2]).toMatchObject({ date: '2026-07-29', routine_names: ['Leg Day'], planned_by: 'pinned' })
-    expect(r.today_routine_name).toBe('Push Day')
+    expect(r.days[2]).toMatchObject({ date: '2026-07-29', routine_names: ['Steady'], planned_by: 'pinned' })
+    expect(r.today_routine_name).toBe('Foundation')
     // Done early: the pin reads as no override and Wednesday goes back to floating (nothing there).
-    S.workouts.push(logged('Leg Day'))
+    S.workouts.push(logged('Steady'))
     r = call('get_week_plan')
     expect(r.coach_week.sessions[2].state).toBe('done')
     expect(r.days[2]).toMatchObject({ routine_ids: [], planned_by: 'rest' })
@@ -364,34 +364,34 @@ describe('get_week_plan — coach week and pins', () => {
 
   test('a coach week waiting for its start day: today is the weekday plan, the week says when it starts', () => {
     coachWeek({ startsOn: '2026-08-03' })
-    S.week = { 1: rid('Push Day') }
+    S.week = { 1: rid('Foundation') }
     const r = call('get_week_plan')
     expect(r.coach_week).toMatchObject({ waiting: true, starts_on: '2026-08-03' })
-    expect(r.days[0]).toMatchObject({ routine_names: ['Push Day'], planned_by: 'weekday' })
+    expect(r.days[0]).toMatchObject({ routine_names: ['Foundation'], planned_by: 'weekday' })
   })
 
   test('the user\'s own weekday routine rides along beside the coach session', () => {
-    coachWeek({ ids: [rid('Push Day'), rid('Pull Day')] })
-    S.week = { 1: [rid('Leg Day')] }
+    coachWeek({ ids: [rid('Foundation'), rid('Align')] })
+    S.week = { 1: [rid('Steady')] }
     const r = call('get_week_plan')
-    expect(r.today_routine_names).toEqual(['Push Day', 'Leg Day'])
-    expect(r.today_routine_name).toBe('Push Day')
+    expect(r.today_routine_names).toEqual(['Foundation', 'Steady'])
+    expect(r.today_routine_name).toBe('Foundation')
     expect(r.days[0].planned_by).toBe('coach')
-    expect(r.weekdays.find(d => d.weekday === 1).routine_names).toEqual(['Leg Day'])
+    expect(r.weekdays.find(d => d.weekday === 1).routine_names).toEqual(['Steady'])
   })
 
   test('rest and routine overrides are named as such', () => {
     coachWeek()
     S.dayPlan[FAKE_TODAY_ISO] = 'rest'
-    S.dayPlan['2026-07-28'] = rid('Leg Day')   // a coach id → a pin, not an override
+    S.dayPlan['2026-07-28'] = rid('Steady')   // a coach id → a pin, not an override
     let r = call('get_week_plan')
     expect(r.days[0]).toMatchObject({ routine_ids: [], planned_by: 'rest_override' })
     expect(r.days[1].planned_by).toBe('pinned')
     S.queue = null
-    S.week = { 1: rid('Push Day') }
-    S.dayPlan = { '2026-07-28': rid('Leg Day') }
+    S.week = { 1: rid('Foundation') }
+    S.dayPlan = { '2026-07-28': rid('Steady') }
     r = call('get_week_plan')
-    expect(r.days[1]).toMatchObject({ routine_names: ['Leg Day'], planned_by: 'override' })
+    expect(r.days[1]).toMatchObject({ routine_names: ['Steady'], planned_by: 'override' })
   })
 })
 
@@ -625,25 +625,25 @@ describe('estimate_1rm', () => {
   test('top-of-table values exactly match the hand-computed Epley for the demo seed', () => {
     const r = call('estimate_1rm', {})
     const top = r.pr_table[0]
-    // Demo seed's hardest set: sled 45° leg press at 152.5×12 (r=12 hits estimate1RM's REP_CAP).
-    expect(top.exId).toBe(LEG_PRESS_ID)
-    expect(top.w).toBe(LEG_PRESS_BEST.w)
-    expect(top.r).toBe(LEG_PRESS_BEST.r)
-    expect(top.est).toBeCloseTo(LEG_PRESS_BEST.epley, 1)
+    // Demo seed's hardest set: cable seated row at 38.75×8. See ROW_BEST.
+    expect(top.exId).toBe(ROW_ID)
+    expect(top.w).toBe(ROW_BEST.w)
+    expect(top.r).toBe(ROW_BEST.r)
+    expect(top.est).toBeCloseTo(ROW_BEST.epley, 1)
   })
 
   test('per-exercise trend + best, with formula honours (Epley vs Brzycki numbers diverge)', () => {
-    const epley = call('estimate_1rm', { exercise_id: LEG_PRESS_ID, formula: 'epley' })
-    expect(epley.exercise.id).toBe(LEG_PRESS_ID)
+    const epley = call('estimate_1rm', { exercise_id: ROW_ID, formula: 'epley' })
+    expect(epley.exercise.id).toBe(ROW_ID)
     expect(epley.formula).toBe('epley')
     expect(Array.isArray(epley.trend)).toBe(true)
     expect(epley.best).toBeTruthy()
-    expect(epley.best.w).toBe(LEG_PRESS_BEST.w)
-    expect(epley.best.r).toBe(LEG_PRESS_BEST.r)
-    expect(epley.best.est).toBeCloseTo(LEG_PRESS_BEST.epley, 1)
-    const brz = call('estimate_1rm', { exercise_id: LEG_PRESS_ID, formula: 'brzycki' })
+    expect(epley.best.w).toBe(ROW_BEST.w)
+    expect(epley.best.r).toBe(ROW_BEST.r)
+    expect(epley.best.est).toBeCloseTo(ROW_BEST.epley, 1)
+    const brz = call('estimate_1rm', { exercise_id: ROW_ID, formula: 'brzycki' })
     expect(brz.formula).toBe('brzycki')
-    expect(brz.best.est).toBeCloseTo(LEG_PRESS_BEST.brzycki, 1)
+    expect(brz.best.est).toBeCloseTo(ROW_BEST.brzycki, 1)
     // Distinct formulas must produce distinct estimates for this set.
     expect(epley.best.est).not.toBeCloseTo(brz.best.est, 1)
   })
@@ -690,7 +690,7 @@ describe('estimate_1rm', () => {
   test('exercises with no reps-mode history get null best + empty trend (not a 0 estimate)', () => {
     S.workouts = []
     _seedStateForTests(S)
-    const r = call('estimate_1rm', { exercise_id: LEG_PRESS_ID })
+    const r = call('estimate_1rm', { exercise_id: ROW_ID })
     expect(r.best).toBeNull()
     expect(r.trend).toEqual([])
     const table = call('estimate_1rm', {}).pr_table
@@ -706,7 +706,7 @@ describe('estimate_1rm', () => {
     // a real exercise with no history keeps the answer about the training, not about the id
     S.workouts = []
     _seedStateForTests(S)
-    const real = call('estimate_1rm', { exercise_id: LEG_PRESS_ID })
+    const real = call('estimate_1rm', { exercise_id: ROW_ID })
     expect(real.exercise.unknown).toBeUndefined()
     expect(real.no_estimate_reason).toBe('No completed sets logged for this exercise.')
   })
@@ -738,7 +738,7 @@ describe('estimate_1rm', () => {
       id: 'w-ramp', d: '2026-07-26', name: 'Legs', start: 1000, end: 1000 + 30 * 60000,
       vol: 0, prs: [],
       entries: [{
-        id: LEG_PRESS_ID, target: { sets: 2, reps: 5, mode: 'reps' },
+        id: ROW_ID, target: { sets: 2, reps: 5, mode: 'reps' },
         sets: [
           { w: 200, r: 5, done: true, phase: 'warmup' },  // mistyped/greedy ramp row
           { w: 100, r: 5, done: true }                     // the only real work set
@@ -750,11 +750,11 @@ describe('estimate_1rm', () => {
     const app = bestSetOf(S.workouts[0].entries[0])
     expect(app.w).toBe(100)                                // the app ignores the 200 kg warm-up
 
-    const best = call('estimate_1rm', { exercise_id: LEG_PRESS_ID }).best
+    const best = call('estimate_1rm', { exercise_id: ROW_ID }).best
     expect(best.w).toBe(100)
     expect(best.est).toBeCloseTo(app.est, 1)
 
-    const row = call('estimate_1rm', {}).pr_table.find(p => p.exId === LEG_PRESS_ID)
+    const row = call('estimate_1rm', {}).pr_table.find(p => p.exId === ROW_ID)
     expect(row.w).toBe(100)
     expect(row.est).toBeCloseTo(app.est, 1)
   })
@@ -767,13 +767,13 @@ describe('estimate_1rm', () => {
       id: 'w-highrep', d: '2026-07-26', name: 'Accessories', start: 1000, end: 1000 + 20 * 60000,
       vol: 0, prs: [],
       entries: [{
-        id: LEG_PRESS_ID, target: { sets: 2, reps: 20, mode: 'reps' },
+        id: ROW_ID, target: { sets: 2, reps: 20, mode: 'reps' },
         sets: [{ w: 40, r: 20, done: true }, { w: 40, r: 18, done: true }]
       }]
     }]
     _seedStateForTests(S)
 
-    const capped = call('estimate_1rm', { exercise_id: LEG_PRESS_ID })
+    const capped = call('estimate_1rm', { exercise_id: ROW_ID })
     expect(capped.best).toBeNull()
     expect(capped.no_estimate_reason).toMatch(/above the \d+-rep cap/)
 
@@ -788,7 +788,7 @@ describe('estimate_1rm', () => {
 
   test('all three formulas are accepted', () => {
     ['epley', 'brzycki', 'lombardi'].forEach(f => {
-      const r = call('estimate_1rm', { exercise_id: LEG_PRESS_ID, formula: f })
+      const r = call('estimate_1rm', { exercise_id: ROW_ID, formula: f })
       expect(r.formula).toBe(f)
       expect(r.best).not.toBeNull()
     })
